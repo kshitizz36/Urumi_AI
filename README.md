@@ -26,13 +26,15 @@ Deploy fully-isolated WooCommerce stores on Kubernetes with one API call. Each s
 
 ### High-Level System Architecture
 
-<img src="docs/images/high-level-architecture.png" alt="High Level System Architecture" width="100%"/>
+<img width="508" height="739" alt="Screenshot 2026-02-12 at 8 56 43 PM" src="https://github.com/user-attachments/assets/0935fb5d-7d7d-48f6-8010-9f102d55390c" />
+
 
 <br/><br/>
 
 ### Provisioning Pipeline (4-Phase)
 
-<img src="docs/images/provisioning-pipeline.png" alt="Provisioning Pipeline" width="100%"/>
+<img width="1230" height="695" alt="Screenshot 2026-02-12 at 10 34 21 PM" src="https://github.com/user-attachments/assets/9d553181-0ab3-4e91-abe2-ea357f27b391" />
+
 
 </div>
 
