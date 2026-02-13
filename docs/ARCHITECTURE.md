@@ -10,7 +10,8 @@ The same Helm charts deploy to a local Kind cluster or a production k3s VPS. The
 
 ## 1. High-Level System Architecture
 
-![High Level System Architecture](images/high-level-architecture.png)
+<img width="508" height="739" alt="Screenshot 2026-02-12 at 8 56 43 PM" src="https://github.com/user-attachments/assets/b4d97448-d54e-44aa-aa9e-3be586303bda" />
+
 
 **Three core components:**
 
@@ -87,7 +88,8 @@ The same Helm charts deploy to a local Kind cluster or a production k3s VPS. The
 
 ## 3. Provisioning Pipeline (4-Phase)
 
-![Provisioning Pipeline](images/provisioning-pipeline.png)
+<img width="1230" height="695" alt="Screenshot 2026-02-12 at 10 34 21 PM" src="https://github.com/user-attachments/assets/9c2c47c3-df18-4741-8fa4-32c8021d2d48" />
+
 
 ---
 
