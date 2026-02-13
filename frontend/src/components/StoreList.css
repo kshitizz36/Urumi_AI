@@ -1,0 +1,70 @@
+/* Store List Styles - Dark Theme */
+.store-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    gap: 24px;
+}
+
+/* State displays (loading, empty, error) */
+.store-list-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 40px;
+    text-align: center;
+    background: rgba(21, 22, 28, 0.6);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+}
+
+.store-list-state.empty {
+    border-color: rgba(139, 92, 246, 0.3);
+}
+
+.store-list-state.error {
+    border-color: rgba(239, 68, 68, 0.3);
+    background: rgba(239, 68, 68, 0.1);
+}
+
+.state-icon {
+    font-size: 64px;
+    margin-bottom: 16px;
+}
+
+.store-list-state h3 {
+    margin: 0 0 8px;
+    font-size: 24px;
+    color: #fff;
+}
+
+.store-list-state p {
+    margin: 0;
+    font-size: 16px;
+    color: #9CA3AF;
+}
+
+/* Loading spinner */
+.loading-spinner {
+    width: 48px;
+    height: 48px;
+    border: 4px solid rgba(255, 255, 255, 0.1);
+    border-top-color: #8B5CF6;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 16px;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .store-list {
+        grid-template-columns: 1fr;
+    }
+}

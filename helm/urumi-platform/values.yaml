@@ -1,0 +1,209 @@
+# ============================================================================
+# URUMI PLATFORM - DEFAULT VALUES
+# ============================================================================
+#
+# This file contains the default configuration values for the Urumi Platform
+# Helm chart. Override these values using:
+#   - values-local.yaml for Kind/local development
+#   - values-prod.yaml for production (k3s/VPS)
+#
+# ============================================================================
+
+# Global settings
+global:
+  # Base domain for store URLs (store-xxx.{domain})
+  storeDomain: localhost
+  # Image pull secrets (if using private registry)
+  imagePullSecrets: []
+
+# Namespace for platform components
+namespace: urumi-platform
+
+# ============================================================================
+# API SERVICE
+# ============================================================================
+api:
+  enabled: true
+  name: urumi-api
+  
+  image:
+    repository: urumi/api
+    tag: latest
+    pullPolicy: IfNotPresent
+  
+  replicas: 1
+  
+  # Resource limits
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  
+  # Service configuration
+  service:
+    type: ClusterIP
+    port: 3001
+  
+  # Health probes
+  probes:
+    liveness:
+      path: /health/live
+      initialDelaySeconds: 10
+      periodSeconds: 20
+    readiness:
+      path: /health/ready
+      initialDelaySeconds: 5
+      periodSeconds: 10
+  
+  # Environment variables
+  env:
+    NODE_ENV: production
+    LOG_LEVEL: info
+    # These are set from secrets/configmaps
+    # DATABASE_URL: set from secret
+    # KUBECONFIG: not needed in-cluster
+
+# ============================================================================
+# DASHBOARD SERVICE
+# ============================================================================
+dashboard:
+  enabled: true
+  name: urumi-dashboard
+  
+  image:
+    repository: urumi/dashboard
+    tag: latest
+    pullPolicy: IfNotPresent
+  
+  replicas: 1
+  
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 128Mi
+  
+  service:
+    type: ClusterIP
+    port: 80
+
+# ============================================================================
+# POSTGRESQL (Platform Database)
+# ============================================================================
+postgresql:
+  enabled: true
+  name: urumi-postgres
+  
+  image:
+    repository: postgres
+    tag: "15-alpine"
+    pullPolicy: IfNotPresent
+  
+  # Single instance for MVP
+  replicas: 1
+  
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  
+  # Persistence
+  storage:
+    size: 5Gi
+    storageClassName: ""  # Use default
+  
+  # Database configuration
+  database: urumi
+  username: urumi
+  # Password is generated and stored in secret
+
+# ============================================================================
+# INGRESS
+# ============================================================================
+ingress:
+  enabled: true
+  className: nginx
+  
+  # Platform dashboard ingress
+  hosts:
+    - host: urumi.localhost
+      paths:
+        - path: /
+          pathType: Prefix
+          service: dashboard
+        - path: /api
+          pathType: Prefix
+          service: api
+        - path: /health
+          pathType: Prefix
+          service: api
+  
+  # TLS configuration (for production)
+  tls: []
+  # - secretName: urumi-tls
+  #   hosts:
+  #     - urumi.localhost
+
+# ============================================================================
+# RBAC
+# ============================================================================
+rbac:
+  # Create ServiceAccount and RBAC rules
+  create: true
+  
+  # ServiceAccount name
+  serviceAccountName: urumi-platform
+  
+  # Permissions for store provisioning
+  # The API needs to create/manage namespaces and resources
+  rules:
+    - apiGroups: [""]
+      resources: ["namespaces", "services", "secrets", "persistentvolumeclaims", "configmaps", "resourcequotas", "limitranges"]
+      verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+    - apiGroups: ["apps"]
+      resources: ["deployments", "statefulsets"]
+      verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+    - apiGroups: ["networking.k8s.io"]
+      resources: ["ingresses", "networkpolicies"]
+      verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+
+# ============================================================================
+# STORE PROVISIONING DEFAULTS
+# ============================================================================
+storeDefaults:
+  # Ingress class for store ingresses
+  ingressClass: nginx
+  
+  # MySQL configuration
+  mysql:
+    storageSize: 1Gi
+    image: mysql:8.0
+  
+  # WordPress configuration  
+  wordpress:
+    storageSize: 2Gi
+    image: bitnami/wordpress:6.4
+  
+  # Timeouts (milliseconds)
+  timeouts:
+    mysqlReady: 120000
+    wordpressReady: 180000
+    healthCheck: 30000
+
+# ============================================================================
+# MONITORING (Optional)
+# ============================================================================
+monitoring:
+  # Enable Prometheus ServiceMonitor
+  enabled: false
+  
+  # Prometheus scrape interval
+  interval: 30s

@@ -1,0 +1,43 @@
+{{- if .Values.rbac.create }}
+# ============================================================================
+# SERVICE ACCOUNT
+# ============================================================================
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ include "urumi-platform.serviceAccountName" . }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "urumi-platform.labels" . | nindent 4 }}
+---
+# ============================================================================
+# CLUSTER ROLE
+# ============================================================================
+# The API needs cluster-wide permissions to create store namespaces
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "urumi-platform.fullname" . }}
+  labels:
+    {{- include "urumi-platform.labels" . | nindent 4 }}
+rules:
+  {{- toYaml .Values.rbac.rules | nindent 2 }}
+---
+# ============================================================================
+# CLUSTER ROLE BINDING
+# ============================================================================
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "urumi-platform.fullname" . }}
+  labels:
+    {{- include "urumi-platform.labels" . | nindent 4 }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "urumi-platform.serviceAccountName" . }}
+    namespace: {{ .Values.namespace }}
+roleRef:
+  kind: ClusterRole
+  name: {{ include "urumi-platform.fullname" . }}
+  apiGroup: rbac.authorization.k8s.io
+{{- end }}

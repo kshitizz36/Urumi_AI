@@ -1,0 +1,14 @@
+apiVersion: v2
+name: urumi-platform
+description: Kubernetes-native store provisioning platform
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+keywords:
+  - kubernetes
+  - woocommerce
+  - e-commerce
+  - store-provisioning
+maintainers:
+  - name: Kshitiz
+    email: admin@urumi.ai

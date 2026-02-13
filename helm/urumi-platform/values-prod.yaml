@@ -1,0 +1,115 @@
+# ============================================================================
+# PRODUCTION VALUES (k3s / VPS)
+# ============================================================================
+#
+# Use with: helm install urumi . -f values-prod.yaml
+#
+# Key differences from local:
+# - Real domain with TLS
+# - Higher resource limits
+# - Container registry images
+# - Production logging
+#
+# ============================================================================
+
+global:
+  # Your production domain
+  storeDomain: stores.example.com
+  imagePullSecrets:
+    - name: registry-secret
+
+api:
+  image:
+    repository: registry.example.com/urumi/api
+    tag: "1.0.0"
+    pullPolicy: Always
+  
+  # Production replicas
+  replicas: 2
+  
+  resources:
+    requests:
+      cpu: 200m
+      memory: 512Mi
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+  
+  env:
+    NODE_ENV: production
+    LOG_LEVEL: info
+
+dashboard:
+  image:
+    repository: registry.example.com/urumi/dashboard
+    tag: "1.0.0"
+    pullPolicy: Always
+  
+  replicas: 2
+  
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 256Mi
+
+postgresql:
+  storage:
+    size: 20Gi
+    storageClassName: local-path  # k3s default
+  
+  resources:
+    requests:
+      cpu: 500m
+      memory: 512Mi
+    limits:
+      cpu: 2000m
+      memory: 2Gi
+
+# k3s uses traefik by default
+ingress:
+  className: traefik
+  hosts:
+    - host: urumi.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+          service: dashboard
+        - path: /api
+          pathType: Prefix
+          service: api
+        - path: /health
+          pathType: Prefix
+          service: api
+  
+  # Enable TLS with cert-manager
+  tls:
+    - secretName: urumi-tls
+      hosts:
+        - urumi.example.com
+
+# Production store settings
+storeDefaults:
+  ingressClass: traefik
+  mysql:
+    storageSize: 5Gi
+  wordpress:
+    storageSize: 10Gi
+  timeouts:
+    mysqlReady: 180000
+    wordpressReady: 300000
+    healthCheck: 60000
+
+# Rate limiting
+rateLimit:
+  global:
+    windowMs: 900000    # 15 minutes
+    max: 100
+  storeCreation:
+    windowMs: 600000    # 10 minutes
+    max: 5
+
+# Max active stores (abuse prevention)
+maxActiveStores: 50

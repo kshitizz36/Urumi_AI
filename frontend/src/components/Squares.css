@@ -1,0 +1,8 @@
+.squares-canvas {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+    /* Touch action none to prevent scrolling bugs on mobile if this captures touch */
+    touch-action: none;
+}

@@ -1,0 +1,87 @@
+============================================================================
+                    URUMI PLATFORM - INSTALLATION NOTES
+============================================================================
+
+Thank you for installing {{ .Chart.Name }}!
+
+RELEASE: {{ .Release.Name }}
+NAMESPACE: {{ .Values.namespace }}
+
+============================================================================
+ACCESS THE DASHBOARD
+============================================================================
+
+{{- if .Values.ingress.enabled }}
+The dashboard is accessible at:
+{{- range .Values.ingress.hosts }}
+  http://{{ .host }}
+{{- end }}
+
+{{- if .Values.ingress.tls }}
+With TLS:
+{{- range .Values.ingress.tls }}
+{{- range .hosts }}
+  https://{{ . }}
+{{- end }}
+{{- end }}
+{{- end }}
+
+{{- else }}
+
+To access the dashboard, run:
+  kubectl port-forward -n {{ .Values.namespace }} svc/{{ .Values.dashboard.name }} 3000:{{ .Values.dashboard.service.port }}
+
+Then open: http://localhost:3000
+
+{{- end }}
+
+============================================================================
+API ENDPOINT
+============================================================================
+
+The API is available at:
+{{- if .Values.ingress.enabled }}
+{{- range .Values.ingress.hosts }}
+  http://{{ .host }}/api
+{{- end }}
+{{- else }}
+  kubectl port-forward -n {{ .Values.namespace }} svc/{{ .Values.api.name }} 3001:{{ .Values.api.service.port }}
+  Then: http://localhost:3001/api
+{{- end }}
+
+Health check: /health/ready
+
+============================================================================
+STORE PROVISIONING
+============================================================================
+
+Stores will be created in separate namespaces with the pattern:
+  store-{id}
+
+Each store will be accessible at:
+  http://store-{id}.{{ .Values.global.storeDomain }}
+
+============================================================================
+NEXT STEPS
+============================================================================
+
+1. Create your first store via the dashboard or API:
+   curl -X POST http://localhost:3001/api/stores \
+     -H "Content-Type: application/json" \
+     -d '{"name": "my-store"}'
+
+2. Wait for the store to become ready (2-3 minutes)
+
+3. Access the store at the URL shown in the dashboard
+
+4. Place a test order using the WooCommerce storefront
+
+============================================================================
+DOCUMENTATION
+============================================================================
+
+- Architecture: docs/ARCHITECTURE.md
+- Troubleshooting: docs/TROUBLESHOOTING.md
+- Runbook: docs/RUNBOOK.md
+
+============================================================================

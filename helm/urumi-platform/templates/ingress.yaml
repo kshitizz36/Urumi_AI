@@ -1,0 +1,48 @@
+{{- if .Values.ingress.enabled }}
+# ============================================================================
+# PLATFORM INGRESS
+# ============================================================================
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "urumi-platform.fullname" . }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "urumi-platform.labels" . | nindent 4 }}
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+spec:
+  ingressClassName: {{ .Values.ingress.className }}
+  {{- if .Values.ingress.tls }}
+  tls:
+    {{- range .Values.ingress.tls }}
+    - secretName: {{ .secretName }}
+      hosts:
+        {{- range .hosts }}
+        - {{ . | quote }}
+        {{- end }}
+    {{- end }}
+  {{- end }}
+  rules:
+    {{- range .Values.ingress.hosts }}
+    - host: {{ .host | quote }}
+      http:
+        paths:
+          {{- range .paths }}
+          - path: {{ .path }}
+            pathType: {{ .pathType }}
+            backend:
+              service:
+                {{- if eq .service "api" }}
+                name: {{ $.Values.api.name }}
+                port:
+                  number: {{ $.Values.api.service.port }}
+                {{- else if eq .service "dashboard" }}
+                name: {{ $.Values.dashboard.name }}
+                port:
+                  number: {{ $.Values.dashboard.service.port }}
+                {{- end }}
+          {{- end }}
+    {{- end }}
+{{- end }}

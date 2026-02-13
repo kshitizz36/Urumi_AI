@@ -1,0 +1,74 @@
+# ============================================================================
+# LOCAL DEVELOPMENT VALUES (Kind)
+# ============================================================================
+#
+# Use with: helm install urumi . -f values-local.yaml
+#
+# ============================================================================
+
+global:
+  storeDomain: localhost
+
+# Use local images (built with docker build)
+api:
+  image:
+    repository: urumi/api
+    tag: local
+    pullPolicy: Never  # Use local image
+  
+  # Lower resources for local dev
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  
+  env:
+    NODE_ENV: development
+    LOG_LEVEL: debug
+
+dashboard:
+  image:
+    repository: urumi/dashboard
+    tag: local
+    pullPolicy: Never
+  
+  resources:
+    requests:
+      cpu: 25m
+      memory: 32Mi
+    limits:
+      cpu: 100m
+      memory: 64Mi
+
+# Local PostgreSQL with smaller storage
+postgresql:
+  storage:
+    size: 1Gi
+    storageClassName: standard  # Kind default
+
+# Local ingress config
+ingress:
+  className: nginx
+  hosts:
+    - host: urumi.localhost
+      paths:
+        - path: /
+          pathType: Prefix
+          service: dashboard
+        - path: /api
+          pathType: Prefix
+          service: api
+        - path: /health
+          pathType: Prefix
+          service: api
+
+# Smaller store resources for local
+storeDefaults:
+  ingressClass: nginx
+  mysql:
+    storageSize: 512Mi
+  wordpress:
+    storageSize: 1Gi
